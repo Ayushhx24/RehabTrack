@@ -1,0 +1,54 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+canvas {
+  border: 2px solid white;
+  border-radius: 10px;
+}
+.button-container,
+.back-button,
+#endButton {
+  position: absolute;
+  z-index: 10;
+  text-align: center;
+}
+.button-container {
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#endButton {
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.back-button {
+  top: 20px;
+  left: 20px;
+  text-decoration: none;
+}
+.goalButton,
+#endButton,
+.back-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 0 5px;
+  border-radius: 8px;
+  border: 1px solid #60a5fa;
+  background-color: #1f2937;
+  color: #e5e7eb;
+  transition: background-color 0.2s;
+}
+.goalButton:hover,
+#endButton:hover,
+.back-button:hover {
+  background-color: #374151;
+}

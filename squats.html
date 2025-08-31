@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RehabTrack - Arm Curls</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.dom.min.js"></script>
+    <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script>
+
+const firebaseConfig = {
+//Firebase details
+};
+      firebase.initializeApp(firebaseConfig);
+    </script>
+    <link rel="stylesheet" href="styleM.css" />
+  </head>
+  <body>
+    <a href="index.html" id="backButton">Go Back</a>
+    <div id="goalSelection" class="button-container">
+      <button class="goalButton" data-goal="10">10 Reps</button>
+      <button class="goalButton" data-goal="20">20 Reps</button>
+      <button class="goalButton" data-goal="30">30 Reps</button>
+    </div>
+    <button id="endButton" style="display: none">End Early</button>
+
+    <script src="squats.js"></script>
+    <script src="sketch.js"></script>
+  </body>
+</html>

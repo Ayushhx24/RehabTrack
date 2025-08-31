@@ -1,0 +1,96 @@
+// arm_curls.js
+
+const armCurlsTracker = {
+  name: "Arm Curls",
+  goal: 0, count: 0, state: "down", history: [], currentAngle: 0,
+  feedback: "", lastStateTime: 0, debounce: 500, repsData: [],
+  minAngleForRep: 180, maxAngleForRep: 0,
+
+  setGoal: function (g) { this.goal = parseInt(g); this.reset(); },
+  
+  reset: function () {
+    this.count = 0; this.history = []; this.repsData = [];
+    this.feedback = "Start curling!"; this.state = "down";
+    this.currentAngle = 0; this.lastStateTime = 0;
+  },
+
+  detect: function (pose) {
+    const { leftShoulder, leftElbow, leftWrist } = pose;
+
+    if (leftShoulder.confidence > 0.2 && leftElbow.confidence > 0.2 && leftWrist.confidence > 0.2) {
+      this.currentAngle = this.calculateAngle(leftShoulder, leftElbow, leftWrist);
+      this.history.push(this.currentAngle);
+
+      console.log(`Angle: ${this.currentAngle.toFixed(1)} | State: ${this.state}`);
+
+      if (this.state === "up") {
+        this.minAngleForRep = Math.min(this.minAngleForRep, this.currentAngle);
+        this.maxAngleForRep = Math.max(this.maxAngleForRep, this.currentAngle);
+      }
+      
+      const currentTime = millis();
+      if (this.currentAngle < 60 && this.state === "down" && currentTime - this.lastStateTime > this.debounce) {
+        this.state = "up";
+        this.lastStateTime = currentTime;
+        this.minAngleForRep = 180;
+        this.maxAngleForRep = 0;
+      }
+
+      if (this.currentAngle > 160 && this.state === "up" && currentTime - this.lastStateTime > this.debounce) {
+        this.state = "down";
+        this.count++;
+        this.lastStateTime = currentTime;
+        
+        const repData = {
+            rep_number: this.count,
+            top_angle: parseFloat(this.minAngleForRep.toFixed(1)),
+            bottom_angle: parseFloat(this.maxAngleForRep.toFixed(1)),
+        };
+        this.repsData.push(repData);
+        console.log(`%cREP ${this.count} COMPLETED!`, "color: #00ff00; font-size: 14px;", repData);
+      }
+    }
+  },
+
+  checkForm: function (pose) {
+    if (this.state === "up" && this.currentAngle > 80) this.feedback = "Bring arm up higher!";
+    else if (this.state === "down" && this.currentAngle < 140) this.feedback = "Extend arm fully!";
+    else this.feedback = "Good Form!";
+  },
+
+  calculateAngle: function (A, B, C) {
+    const BA = [A.x - B.x, A.y - B.y];
+    const BC = [C.x - B.x, C.y - B.y];
+    const dotProduct = BA[0] * BC[0] + BA[1] * BC[1];
+    const magnitudeBA = Math.sqrt(BA[0] ** 2 + BA[1] ** 2);
+    const magnitudeBC = Math.sqrt(BC[0] ** 2 + BC[1] ** 2);
+    if (magnitudeBA === 0 || magnitudeBC === 0) return 0;
+    const angleRad = Math.acos(dotProduct / (magnitudeBA * magnitudeBC));
+    return (angleRad * 180) / Math.PI;
+  },
+
+  drawUI: function () {
+    fill(255); stroke(0); strokeWeight(4); textAlign(LEFT, TOP); textSize(32);
+    text(`Curls: ${this.count} / ${this.goal}`, 10, 30);
+    text(`Angle: ${this.currentAngle.toFixed(0)}°`, 10, 70);
+    textSize(28);
+    fill(this.feedback.includes("Good") ? [0, 255, 0] : [255, 0, 0]);
+    text(`Form: ${this.feedback}`, 10, 110);
+  },
+
+  drawGraph: function () {
+    if (this.history.length > 1) {
+      textAlign(LEFT, CENTER); fill(150); textSize(12);
+      text("180°", 20, 150); text("90°", 20, height / 2); text("0°", 20, height - 50);
+      noFill(); stroke(0, 255, 255); strokeWeight(2);
+      beginShape();
+      for (let i = 0; i < this.history.length; i++) {
+        const x = map(i, 0, this.history.length - 1, 60, width - 20);
+        const y = map(this.history[i], 0, 180, height - 50, 150);
+        vertex(x, y);
+      }
+      endShape();
+    }
+  },
+};
+var currentTracker = armCurlsTracker;
