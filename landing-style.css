@@ -1,0 +1,148 @@
+body {
+    margin: 0;
+    font-family: "Inter", sans-serif;
+    background: #121828;
+    color: #e5e7eb;
+    text-align: center;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #c7d2fe;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.nav-links a {
+    color: #e5e7eb;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #60a5fa;
+}
+
+.btn-login {
+    background: #4f46e5;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #6366f1;
+    color: white;
+}
+
+.hero {
+    padding: 100px 0;
+}
+
+.hero-content h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    background: linear-gradient(90deg, #818cf8, #60a5fa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 15px rgba(96, 165, 250, 0.3);
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    color: #9ca3af;
+    margin-bottom: 40px;
+}
+
+.cta-button {
+    background: #4f46e5;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.cta-button:hover {
+    background-color: #6366f1;
+    transform: scale(1.05);
+}
+
+.about-section, .features-section {
+    padding: 80px 0;
+}
+
+h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #c7d2fe;
+}
+
+.about-section p {
+    font-size: 1.1rem;
+    color: #9ca3af;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.feature-card {
+    background: #1f2937;
+    padding: 30px;
+    border-radius: 15px;
+    border: 1px solid #374151;
+}
+
+.feature-card h3 {
+    font-size: 1.5rem;
+    color: #a5b4fc;
+    margin-bottom: 15px;
+}
+
+.feature-card p {
+    font-size: 1rem;
+    color: #9ca3af;
+    line-height: 1.5;
+}
+
+.footer {
+    padding: 40px 0;
+    border-top: 1px solid #374151;
+    margin-top: 60px;
+}
+
+.footer p {
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
