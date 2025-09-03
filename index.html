@@ -86,11 +86,20 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 // User is signed in.
-                console.log("User is logged in:", user);
-                document.getElementById('username').textContent = user.email; // Display user's email
+                const usernameSpan = document.getElementById('username');
+                const userInfoDiv = document.getElementById('userInfo');
+
+                if(usernameSpan) {
+                  // Display the part of the email before the "@" as the username
+                  usernameSpan.textContent = user.email.split('@')[0];
+                }
+                if(userInfoDiv) {
+                  // Display the full email in the top bar
+                  userInfoDiv.textContent = user.email;
+                }
+
             } else {
-                // No user is signed in.
-                console.log("No user is signed in.");
+                // No user is signed in, redirect to login page.
                 window.location.href = 'login.html';
             }
         });
@@ -99,7 +108,6 @@
         logoutBtn.addEventListener('click', () => {
             signOut(auth).then(() => {
                 // Sign-out successful.
-                console.log("User signed out");
                 window.location.href = 'landing.html';
             }).catch((error) => {
                 // An error happened.
@@ -107,6 +115,7 @@
             });
         });
     </script> -->
+
 
   </body>
 </html>

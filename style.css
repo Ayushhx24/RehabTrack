@@ -15,20 +15,45 @@ body {
   left: 0;
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
+  justify-content: flex-end; /* Aligns items to the right */
   align-items: center;
   padding: 20px 40px;
   box-sizing: border-box;
   z-index: 10;
+  gap: 25px; /* Adds space between user email and logout button */
+}
+.user-info {
+  color: #c7d2fe;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.logout-btn {
+  background-color: transparent;
+  color: #c7d2fe;
+  border: 2px solid #4f46e5;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #4f46e5;
+  color: white;
 }
 #app {
   width: 90%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 120px;
+  padding: 120px 20px;
   text-align: center;
 }
-.burger {
+/* .burger {
   position: relative;
   width: 40px;
   height: 30px;
@@ -107,7 +132,7 @@ body {
   transform: rotate(-45deg);
   top: 28px;
   left: 5px;
-}
+} */
 header {
   margin-bottom: 50px;
 }
