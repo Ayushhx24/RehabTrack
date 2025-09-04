@@ -140,6 +140,39 @@ const pushupsTracker = {
     this.lastStateTime = 0;
   },
 
+  generateAnalysis: function () {
+    if (this.repsData.length === 0) {
+      return {
+        summary: "No reps were completed.",
+        recommendation: "Try to complete at least one rep to get an analysis."
+      };
+    }
+
+    let totalDepth = 0, totalAlignment = 0;
+    let worstAlignmentRep = { body_alignment_angle: 180 };
+
+    for (const rep of this.repsData) {
+      totalDepth += rep.depth_angle;
+      totalAlignment += rep.body_alignment_angle;
+      if (rep.body_alignment_angle < worstAlignmentRep.body_alignment_angle) worstAlignmentRep = rep;
+    }
+
+    const avgDepth = totalDepth / this.repsData.length;
+    const avgAlignment = totalAlignment / this.repsData.length;
+
+    let summary = `Your average depth was ${avgDepth.toFixed(1)}° and average body alignment was ${avgAlignment.toFixed(1)}°.`;
+    let recommendation = "";
+
+    if (avgAlignment < 160) {
+      recommendation = `Your top priority is body alignment. Your hips sagged significantly on rep #${worstAlignmentRep.rep_number} (${worstAlignmentRep.body_alignment_angle}°). Brace your core and glutes to keep a straight line from shoulders to ankles.`;
+    } else if (avgDepth > 100) {
+      recommendation = `Great alignment! Your next step is to increase your depth. Focus on lowering your chest until your elbows reach a 90° angle.`;
+    } else {
+      recommendation = `Excellent form! Your push-ups show great depth and a solid, straight body line. Great work.`;
+    }
+    return { summary, recommendation };
+  },
+  
   detect: function (pose) {
 
     if (!pose.leftElbow || !pose.rightElbow || !pose.leftShoulder || !pose.rightShoulder || !pose.leftWrist || !pose.rightWrist || !pose.leftHip || !pose.leftAnkle) {

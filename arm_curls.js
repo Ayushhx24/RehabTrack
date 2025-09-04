@@ -14,6 +14,61 @@ const armCurlsTracker = {
     this.currentAngle = 0; this.lastStateTime = 0;
   },
 
+  generateAnalysis: function () {
+    if (this.repsData.length < 3) {
+      return {
+        summary: "Not enough reps were completed for a detailed analysis.",
+        recommendation: "Try to complete at least 3 reps to get an analysis."
+      };
+    }
+
+    // --- 1. Calculate Averages and Find Outliers ---
+    let totalTopAngle = 0, totalBottomAngle = 0, totalTempo = 0;
+    let worstTopRep = { top_angle: 0, rep_number: 0 }; // Rep with largest top_angle
+    let worstBottomRep = { bottom_angle: 180, rep_number: 0 }; // Rep with smallest bottom_angle
+
+    for (const rep of this.repsData) {
+      totalTopAngle += rep.top_angle;
+      totalBottomAngle += rep.bottom_angle;
+      totalTempo += rep.rep_duration_seconds;
+      if (rep.top_angle > worstTopRep.top_angle) worstTopRep = rep;
+      if (rep.bottom_angle < worstBottomRep.bottom_angle) worstBottomRep = rep;
+    }
+    const avgTop = totalTopAngle / this.repsData.length;
+    const avgBottom = totalBottomAngle / this.repsData.length;
+    const avgTempo = totalTempo / this.repsData.length;
+
+    // --- 2. Build a List of Recommendations Based on Rules ---
+    let recommendations = [];
+
+    // Priority #1: Full Extension (Bottom of rep)
+    if (avgBottom < 165) {
+      recommendations.push(`Your top priority is full extension. On rep #${worstBottomRep.rep_number}, your arm only straightened to ${worstBottomRep.bottom_angle}°. Focus on lowering the weight all the way down to engage the full muscle.`);
+    }
+
+    // Priority #2: Full Contraction (Top of rep)
+    if (avgTop > 60) {
+      recommendations.push(`Focus on a full contraction at the top. On rep #${worstTopRep.rep_number}, you only curled to ${worstTopRep.top_angle}°. Squeeze the bicep at the top of the movement.`);
+    }
+
+    // Priority #3: Tempo (Control)
+    if (avgTempo < 2.0) {
+      recommendations.push(`Your pace is fast (${avgTempo.toFixed(1)}s per rep). Slow down, especially on the way down (the eccentric phase), to maximize muscle engagement and prevent using momentum.`);
+    }
+
+    // --- 3. Format the Final Report ---
+    const summary = `Your average range of motion was from ${avgBottom.toFixed(1)}° (extended) to ${avgTop.toFixed(1)}° (curled).`;
+    let finalRecommendation = "";
+
+    if (recommendations.length === 0) {
+      finalRecommendation = "Excellent work! Your form shows a full and consistent range of motion with good control. Keep it up.";
+    } else {
+      finalRecommendation = recommendations.map(rec => `• ${rec}`).join('\n\n');
+    }
+    
+    return { summary, recommendation: finalRecommendation };
+  },
+
   detect: function (pose) {
     const { leftShoulder, leftElbow, leftWrist } = pose;
 
@@ -39,15 +94,16 @@ const armCurlsTracker = {
       if (this.currentAngle > 160 && this.state === "up" && currentTime - this.lastStateTime > this.debounce) {
         this.state = "down";
         this.count++;
-        this.lastStateTime = currentTime;
         
-        const repData = {
-            rep_number: this.count,
-            top_angle: parseFloat(this.minAngleForRep.toFixed(1)),
-            bottom_angle: parseFloat(this.maxAngleForRep.toFixed(1)),
-        };
-        this.repsData.push(repData);
-        console.log(`%cREP ${this.count} COMPLETED!`, "color: #00ff00; font-size: 14px;", repData);
+        const repDuration = (currentTime - this.lastStateTime) / 1000;
+        this.lastStateTime = currentTime;
+
+        this.repsData.push({
+          rep_number: this.count,
+          top_angle: parseFloat(this.minAngleForRep.toFixed(1)),
+          bottom_angle: parseFloat(this.maxAngleForRep.toFixed(1)),
+          rep_duration_seconds: parseFloat(repDuration.toFixed(2)),
+        });
       }
     }
   },

@@ -9,6 +9,8 @@ let appState = "goal_selection";
 let goalButtons, endButton;
 let sessionStartTime;
 
+let analysisReport = null;
+let isLoadingAnalysis = false;
 
 function setup() {
   createCanvas(640, 480);
@@ -42,52 +44,66 @@ function setGoal(goal) {
 }
 
 function handleEndRestart() {
-  if (appState === "exercise") {
-    // DEBUG: Check if the button click is triggering the save
-    console.log("'End Early' button clicked. Attempting to save...");
-    saveSessionToFirebase();
+if (appState === "exercise") {
+    saveSessionToFirebase(); // Still save the raw data to Firestore
+
+    isLoadingAnalysis = true;
+    analysisReport = null;
+    
+    // Use fetch() to call your Replit server
+    const replitUrl = 'https://16b3808e-398c-44fb-9a03-5113c40a0c1a-00-jrce623my29i.pike.replit.dev/generate-analysis';
+
+    fetch(replitUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        reps_data: currentTracker.repsData,
+        exercise_name: currentTracker.name,
+        goal: currentTracker.goal
+      })
+    })
+    .then(response => {
+        if (!response.ok) { // Check if the server responded with an error (like 500)
+            throw new Error('Server responded with an error.');
+        }
+        return response.json();
+    })
+    .then(data => {
+      // Use the AI-generated text if successful
+      analysisReport = data.analysis; 
+      isLoadingAnalysis = false;
+    })
+    .catch(error => {
+      // --- THIS IS THE FALLBACK ---
+      console.warn("AI analysis failed, using local rule-based analysis instead. Error:", error);
+      
+      const localReport = currentTracker.generateAnalysis(); // Call the local function
+      analysisReport = `Here is a local analysis:\n\n${localReport.summary}\n\nRecommendation:\n${localReport.recommendation}`;
+
+      isLoadingAnalysis = false;
+    });
+      
     appState = "results";
   } else {
     currentTracker.reset();
+    analysisReport = null;
     appState = "goal_selection";
   }
   updateButtonVisibility();
 }
 
 function saveSessionToFirebase() {
-  // DEBUG: Check if the function is being entered and if the data is valid
-  console.log("Inside saveSessionToFirebase function.");
-  console.log("Is the database connection valid?", db);
-  console.log("Data to be saved:", currentTracker);
-
-  if (currentTracker.count === 0) {
-    console.log("Save cancelled: No completed reps.");
-    return;
-  }
-  
+  if (currentTracker.count === 0) return;
   const sessionEndTime = new Date();
   const durationInSeconds = (sessionEndTime.getTime() - sessionStartTime.getTime()) / 1000;
-  
   const sessionData = {
-    exercise: currentTracker.name,
-    goal: currentTracker.goal,
-    completed_reps: currentTracker.count,
-    startTime: sessionStartTime,
-    endTime: sessionEndTime,
-    duration_seconds: parseFloat(durationInSeconds.toFixed(2)),
+    exercise: currentTracker.name, goal: currentTracker.goal, completed_reps: currentTracker.count,
+    startTime: sessionStartTime, endTime: sessionEndTime, duration_seconds: parseFloat(durationInSeconds.toFixed(2)),
     reps_data: currentTracker.repsData,
   };
-
   db.collection("workout_sessions").add(sessionData)
-    .then((docRef) => {
-      console.log("%cSUCCESS: Session saved with ID: " + docRef.id, "color: green; font-weight: bold;");
-      alert(`Workout Saved! You completed ${currentTracker.count} of ${currentTracker.goal} reps.`);
-    })
-    .catch((error) => {
-        // DEBUG: Catch and display any error from Firebase
-        console.error("%cFIREBASE ERROR: ", "color: red; font-weight: bold;", error);
-        alert("SAVE FAILED. Check the console (F12) for error details.");
-    });
+    .then((docRef) => console.log("%cSUCCESS: Session saved with ID: " + docRef.id, "color: green;"))
+    .catch((error) => console.error("%cFIREBASE ERROR: ", "color: red;", error));
 }
 
 function updateButtonVisibility() {
@@ -115,21 +131,56 @@ function drawExerciseScreen() {
     currentTracker.checkForm(poses[0].pose);
   }
   if (currentTracker.goal > 0 && currentTracker.count >= currentTracker.goal && appState === 'exercise') {
-    // DEBUG: Check if reaching the goal is triggering the save
-    console.log("Goal reached. Attempting to save...");
-    saveSessionToFirebase();
-    appState = "results";
-    updateButtonVisibility();
+    handleEndRestart(); // Call the main end/save function
   }
   drawKeypoints(); drawSkeleton(); currentTracker.drawUI();
 }
 
-function drawResultsScreen() {
+/* function drawResultsScreen() {
   background(20); fill(255); noStroke(); textAlign(CENTER, TOP); textSize(40);
   text("Exercise Summary", width / 2, 20);
   textSize(28);
   text(`Total ${currentTracker.name}: ${currentTracker.count} / ${currentTracker.goal}`, width / 2, 80);
   currentTracker.drawGraph();
+}
+
+function drawKeypoints() {
+  if (!poses) return;
+  for (let pose of poses) for (let keypoint of pose.pose.keypoints) if (keypoint.score > 0.2) {
+    fill(0, 255, 0); noStroke();
+    ellipse(width - keypoint.position.x, keypoint.position.y, 10, 10);
+  }
+}
+
+function drawSkeleton() {
+  if (!poses) return;
+  for (let pose of poses) for (let skeleton of pose.skeleton) {
+    let partA = skeleton[0], partB = skeleton[1];
+    stroke(0, 255, 255);
+    line(width - partA.position.x, partA.position.y, width - partB.position.x, partB.position.y);
+  }
+ }*/
+function drawResultsScreen() {
+  background(20);
+  fill(255);
+  noStroke();
+  textAlign(CENTER, TOP);
+  textSize(40);
+  text("Exercise Summary", width / 2, 20);
+  
+  textSize(22);
+  text(`Total ${currentTracker.name}: ${currentTracker.count} / ${currentTracker.goal}`, width / 2, 80);
+
+  if (isLoadingAnalysis) {
+    textSize(20);
+    fill(200);
+    text("Generating AI analysis, please wait...", width / 2, height / 2);
+  } else if (analysisReport) {
+    textAlign(LEFT, TOP);
+    fill(220);
+    textSize(18);
+    text(analysisReport, 40, 140, width - 80, height - 160); 
+  }
 }
 
 function drawKeypoints() {

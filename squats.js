@@ -253,6 +253,39 @@ const squatsTracker = {
 
   setGoal: function (g) { this.goal = parseInt(g); this.reset(); },
   
+  generateAnalysis: function () {
+    if (this.repsData.length === 0) {
+      return {
+        summary: "No reps were completed.",
+        recommendation: "Try to complete at least one rep to get an analysis."
+      };
+    }
+
+    let totalDepth = 0, totalLean = 0;
+    let mostLeanedRep = { lean_angle: 180, rep_number: 0 };
+
+    for (const rep of this.repsData) {
+      totalDepth += rep.depth_angle;
+      totalLean += rep.lean_angle;
+      if (rep.lean_angle < mostLeanedRep.lean_angle) mostLeanedRep = rep;
+    }
+
+    const avgDepth = totalDepth / this.repsData.length;
+    const avgLean = totalLean / this.repsData.length;
+
+    let summary = `Based on your data, your average depth was ${avgDepth.toFixed(1)}° and average back lean was ${avgLean.toFixed(1)}°.`;
+    let recommendation = "";
+
+    if (avgLean < 75) {
+      recommendation = `Your top priority is safety. Your back lean was excessive, especially on rep #${mostLeanedRep.rep_number} (${mostLeanedRep.lean_angle}°). Focus on keeping your chest up and aim for a back angle above 80°.`;
+    } else if (avgDepth > 95) {
+      recommendation = `Great posture! Your main goal is to increase depth. Try to consistently get your depth angle below 90° on each rep.`;
+    } else {
+      recommendation = `Excellent work! You've demonstrated a great balance of safe posture and effective depth. Keep up the consistent form.`;
+    }
+    return { summary, recommendation };
+  },
+  
   reset: function () {
     this.count = 0; this.history = []; this.repsData = [];
     this.feedback = "Start squatting!"; this.state = "up";
