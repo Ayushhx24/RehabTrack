@@ -15,15 +15,12 @@
         
         <div class="form-box login">
             <h2 class="animation" style="--i:0; --j:21;">Login</h2>
-            <form action="#">
-                <div class="input-box animation" style="--i:1; --j:22;">
-                    <input type="text" required>
-                    <label>Username</label>
+            <form action="#" id="loginForm"> <div class="input-box animation" style="--i:1; --j:22;">
+                    <input type="email" id="loginEmail" required> <label>Email</label>
                     <i class='bx bxs-user'></i>
                 </div>
                 <div class="input-box animation" style="--i:2; --j:23;">
-                    <input type="password" required>
-                    <label>Password</label>
+                    <input type="password" id="loginPassword" required> <label>Password</label>
                     <i class='bx bxs-lock-alt'></i>
                 </div>
                 <div class="remember-forgot animation" style="--i:3; --j:24;">
@@ -41,24 +38,18 @@
             <p class="animation" style="--i:1; --j:21;">Login to continue your journey to recovery.</p>
         </div>
 
-        <!-- Registration Form -->
-
         <div class="form-box register">
             <h2 class="animation" style="--i:17; --j:0;">Sign Up</h2>
-            <form action="#">
-                <div class="input-box animation" style="--i:18; --j:1;">
-                    <input type="text" required>
-                    <label>Username</label>
+            <form action="#" id="registerForm"> <div class="input-box animation" style="--i:18; --j:1;">
+                    <input type="text" id="registerUsername" required> <label>Username</label>
                     <i class='bx bxs-user'></i>
                 </div>
                 <div class="input-box animation" style="--i:19; --j:2;">
-                    <input type="email" required>
-                    <label>Email</label>
+                    <input type="email" id="registerEmail" required> <label>Email</label>
                     <i class='bx bxs-envelope'></i>
                 </div>
                 <div class="input-box animation" style="--i:20; --j:3;">
-                    <input type="password" required>
-                    <label>Password</label>
+                    <input type="password" id="registerPassword" required> <label>Password</label>
                     <i class='bx bxs-lock-alt'></i>
                 </div>
                 <div class="remember-forgot animation" style="--i:21; --j:4;">
@@ -76,41 +67,39 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module">
+        // --- Firebase Imports ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-
-    <!-- ================== FIREBASE INTEGRATION ================== -->
-
-    
-    <!-- This script connects to Firebase for user authentication. -->
-    <!-- Make sure to replace the config with your own Firebase project config. -->
-
-    <!-- <script type="module">
-        // Import functions from the Firebase SDKs
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { 
-            getAuth, 
-            createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword,
-            onAuthStateChanged
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        // Your web app's Firebase configuration
-        // IMPORTANT: Replace with your actual Firebase config
+        // --- Firebase Configuration ---
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            //Firebase details
         };
-
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // Redirect user if already logged in
+        // --- UI Toggle Logic ---
+        const wrapper = document.querySelector('.wrapper');
+        const registerLink = document.querySelector('.register-link');
+        const loginLink = document.querySelector('.login-link');
+
+        if (registerLink) {
+            registerLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                wrapper.classList.add('active');
+            });
+        }
+        if (loginLink) {
+            loginLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                wrapper.classList.remove('active');
+            });
+        }
+        
+        // --- Firebase Authentication Logic ---
         onAuthStateChanged(auth, user => {
             if (user) {
                 window.location.href = 'index.html';
@@ -125,10 +114,7 @@
 
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
-                    // Signed in 
-                    const user = userCredential.user;
-                    console.log('User logged in:', user);
-                    window.location.href = 'index.html';
+                    console.log('User logged in:', userCredential.user);
                 })
                 .catch((error) => {
                     alert('Error logging in: ' + error.message);
@@ -136,27 +122,30 @@
         });
 
         const registerForm = document.getElementById('registerForm');
-        const wrapper = document.querySelector('.wrapper');
-
         registerForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            const username = document.getElementById('registerUsername').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             
             createUserWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
+                    const user = userCredential.user;
+                    // Create a user profile document in Firestore
+                    return setDoc(doc(db, "users", user.uid), {
+                        username: username,
+                        email: email,
+                        joinDate: serverTimestamp()
+                    });
+                })
+                .then(() => {
                     alert('Account created successfully! Please log in.');
-                    // Switch to login form
-                    wrapper.classList.remove('active');
-                    document.getElementById('loginEmail').value = email;
-                    document.getElementById('loginPassword').focus();
+                    wrapper.classList.remove('active'); // Switch back to login form
                 })
                 .catch((error) => {
                     alert('Error signing up: ' + error.message);
                 });
         });
-    </script> -->
-
-
+    </script>
 </body>
 </html>
