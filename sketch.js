@@ -1,23 +1,53 @@
-// sketch.js - Universal Exercise Controller with DEBUG LOGS
+// sketch.js - FINAL VERSION with MODERN FIREBASE v9+ SYNTAX
 
+// --- Firebase Imports ---
+// We import the functions we need from the Firebase SDKs
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getFirestore, collection, doc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+// --- Firebase Initialization ---
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// --- p5.js and App Variables ---
 let video;
 let poseNet;
 let poses = [];
-let db;
-
+let currentUser = null;
 let appState = "goal_selection";
 let goalButtons, endButton;
 let sessionStartTime;
-
 let analysisReport = null;
 let isLoadingAnalysis = false;
+let isReady = false;
 
-function setup() {
+// 'currentTracker' is defined by the exercise-specific file (e.g., arm_curls.js)
+
+// We assign p5.js functions to the global window object so p5 can find them
+window.setup = function() {
   createCanvas(640, 480);
-  db = firebase.firestore();
   video = createCapture(VIDEO);
   video.size(width, height);
   video.hide();
+  
+  noLoop(); // Pause draw() loop until ready
+
+  // Use the 'auth' object we initialized above
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      currentUser = user;
+      console.log("User is authenticated with UID:", currentUser.uid);
+      initializeSketch(); 
+    } else {
+      console.log("No user signed in. Redirecting to login page.");
+      window.location.href = 'login.html';
+    }
+  });
+}
+
+function initializeSketch() {
   poseNet = ml5.poseNet(video, () => console.log(`PoseNet Model Loaded for ${currentTracker.name}!`));
   poseNet.on("pose", (results) => { poses = results; });
 
@@ -28,31 +58,35 @@ function setup() {
   endButton = select("#endButton");
   endButton.mousePressed(handleEndRestart);
   updateButtonVisibility();
+
+  isReady = true;
+  loop(); // Start the draw() loop
 }
 
-function draw() {
+window.draw = function() {
+  if (!isReady) {
+    background(0); fill(255); textAlign(CENTER, CENTER);
+    text("Authenticating...", width / 2, height / 2);
+    return;
+  }
+  
   if (appState === "goal_selection") drawGoalScreen();
   else if (appState === "exercise") drawExerciseScreen();
   else if (appState === "results") drawResultsScreen();
 }
 
-function setGoal(goal) {
-  currentTracker.setGoal(goal);
-  appState = "exercise";
-  sessionStartTime = new Date();
-  updateButtonVisibility();
+window.setGoal = function(goal) {    
+    currentTracker.setGoal(goal);
+    appState = "exercise";
+    sessionStartTime = new Date();
+    updateButtonVisibility();
 }
-
-function handleEndRestart() {
-if (appState === "exercise") {
-    saveSessionToFirebase(); // Still save the raw data to Firestore
-
+window.handleEndRestart = function() {
+    if (appState === "exercise") {
+    saveSessionToFirebase();
     isLoadingAnalysis = true;
     analysisReport = null;
-    
-    // Use fetch() to call your Replit server
-    const replitUrl = 'https://16b3808e-398c-44fb-9a03-5113c40a0c1a-00-jrce623my29i.pike.replit.dev/generate-analysis';
-
+    const replitUrl = 'https://16b3808e-398c-44fb-9a03-5113c40a0c1a-00-jrce623my29i.pike.replit.dev/generate-analysis'; // PASTE YOUR REPLIT
     fetch(replitUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -63,26 +97,19 @@ if (appState === "exercise") {
       })
     })
     .then(response => {
-        if (!response.ok) { // Check if the server responded with an error (like 500)
-            throw new Error('Server responded with an error.');
-        }
+        if (!response.ok) throw new Error('Server responded with an error.');
         return response.json();
     })
     .then(data => {
-      // Use the AI-generated text if successful
-      analysisReport = data.analysis; 
+      analysisReport = data.analysis;
       isLoadingAnalysis = false;
     })
     .catch(error => {
-      // --- THIS IS THE FALLBACK ---
-      console.warn("AI analysis failed, using local rule-based analysis instead. Error:", error);
-      
-      const localReport = currentTracker.generateAnalysis(); // Call the local function
-      analysisReport = `Here is a local analysis:\n\n${localReport.summary}\n\nRecommendation:\n${localReport.recommendation}`;
-
+      console.warn("AI analysis failed, using local analysis instead. Error:", error);
+      const localReport = currentTracker.generateAnalysis();
+      analysisReport = `AI analysis is currently unavailable.\n\nHere is a local analysis:\n\n${localReport.summary}\n\nRecommendation:\n${localReport.recommendation}`;
       isLoadingAnalysis = false;
     });
-      
     appState = "results";
   } else {
     currentTracker.reset();
@@ -92,22 +119,31 @@ if (appState === "exercise") {
   updateButtonVisibility();
 }
 
-function saveSessionToFirebase() {
+window.saveSessionToFirebase = function() {
+  if (!currentUser) {
+    console.error("Cannot save: No user is logged in.");
+    return;
+  }
   if (currentTracker.count === 0) return;
+  
   const sessionEndTime = new Date();
   const durationInSeconds = (sessionEndTime.getTime() - sessionStartTime.getTime()) / 1000;
   const sessionData = {
     exercise: currentTracker.name, goal: currentTracker.goal, completed_reps: currentTracker.count,
-    startTime: sessionStartTime, endTime: sessionEndTime, duration_seconds: parseFloat(durationInSeconds.toFixed(2)),
+    startTime: sessionStartTime, endTime: sessionEndTime, // Note: Timestamps are client-side
+    duration_seconds: parseFloat(durationInSeconds.toFixed(2)),
     reps_data: currentTracker.repsData,
   };
-  db.collection("workout_sessions").add(sessionData)
-    .then((docRef) => console.log("%cSUCCESS: Session saved with ID: " + docRef.id, "color: green;"))
+
+  // Use the modern 'addDoc' and 'collection' functions
+  const userWorkoutsRef = collection(db, "users", currentUser.uid, "workouts");
+  addDoc(userWorkoutsRef, sessionData)
+    .then((docRef) => console.log("%cSUCCESS: Session saved for user " + currentUser.uid, "color: green;"))
     .catch((error) => console.error("%cFIREBASE ERROR: ", "color: red;", error));
 }
 
-function updateButtonVisibility() {
-  const goalSel = select("#goalSelection");
+// --- All other helper and drawing functions must also be attached to the window object ---
+window.updateButtonVisibility = function() {const goalSel = select("#goalSelection");
   const endBtn = select("#endButton");
   if (appState === "goal_selection") {
     goalSel.style("display", "block"); 
@@ -118,59 +154,29 @@ function updateButtonVisibility() {
     endBtn.show();
   }
 }
-
-function drawGoalScreen() {
+window.drawGoalScreen = function() {  
   background(0); fill(255); textAlign(CENTER, CENTER); textSize(32);
   text(`Select a Goal for ${currentTracker.name}`, width / 2, height / 2 - 50);
 }
-
-function drawExerciseScreen() {
+window.drawExerciseScreen = function() {
   push(); translate(width, 0); scale(-1, 1); image(video, 0, 0, width, height); pop();
   if (poses.length > 0) {
     currentTracker.detect(poses[0].pose);
     currentTracker.checkForm(poses[0].pose);
   }
   if (currentTracker.goal > 0 && currentTracker.count >= currentTracker.goal && appState === 'exercise') {
-    handleEndRestart(); // Call the main end/save function
+    handleEndRestart();
   }
-  drawKeypoints(); drawSkeleton(); currentTracker.drawUI();
-}
-
-/* function drawResultsScreen() {
-  background(20); fill(255); noStroke(); textAlign(CENTER, TOP); textSize(40);
-  text("Exercise Summary", width / 2, 20);
-  textSize(28);
-  text(`Total ${currentTracker.name}: ${currentTracker.count} / ${currentTracker.goal}`, width / 2, 80);
-  currentTracker.drawGraph();
-}
-
-function drawKeypoints() {
-  if (!poses) return;
-  for (let pose of poses) for (let keypoint of pose.pose.keypoints) if (keypoint.score > 0.2) {
-    fill(0, 255, 0); noStroke();
-    ellipse(width - keypoint.position.x, keypoint.position.y, 10, 10);
-  }
-}
-
-function drawSkeleton() {
-  if (!poses) return;
-  for (let pose of poses) for (let skeleton of pose.skeleton) {
-    let partA = skeleton[0], partB = skeleton[1];
-    stroke(0, 255, 255);
-    line(width - partA.position.x, partA.position.y, width - partB.position.x, partB.position.y);
-  }
- }*/
-function drawResultsScreen() {
+  drawKeypoints(); drawSkeleton(); currentTracker.drawUI();}
+window.drawResultsScreen = function() {
   background(20);
   fill(255);
   noStroke();
   textAlign(CENTER, TOP);
   textSize(40);
   text("Exercise Summary", width / 2, 20);
-  
   textSize(22);
   text(`Total ${currentTracker.name}: ${currentTracker.count} / ${currentTracker.goal}`, width / 2, 80);
-
   if (isLoadingAnalysis) {
     textSize(20);
     fill(200);
@@ -182,16 +188,14 @@ function drawResultsScreen() {
     text(analysisReport, 40, 140, width - 80, height - 160); 
   }
 }
-
-function drawKeypoints() {
+window.drawKeypoints = function() {
   if (!poses) return;
   for (let pose of poses) for (let keypoint of pose.pose.keypoints) if (keypoint.score > 0.2) {
     fill(0, 255, 0); noStroke();
     ellipse(width - keypoint.position.x, keypoint.position.y, 10, 10);
   }
 }
-
-function drawSkeleton() {
+window.drawSkeleton = function() {
   if (!poses) return;
   for (let pose of poses) for (let skeleton of pose.skeleton) {
     let partA = skeleton[0], partB = skeleton[1];
