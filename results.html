@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RehabTrack - Exercise Analysis</title>
+    <link rel="stylesheet" href="results-style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Analysis Complete!</h1>
+        <p>
+          Here's the breakdown of your
+          <strong id="exercise-name">Exercise</strong> session.
+        </p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Your Goal</h3>
+          <p id="goal-reps">0 Reps</p>
+        </div>
+        <div class="stat-card">
+          <h3>Completed</h3>
+          <p id="completed-reps">0 Reps</p>
+        </div>
+        <div class="stat-card">
+          <h3>Completion</h3>
+          <p id="completion-rate">0%</p>
+        </div>
+      </div>
+
+      <div class="analysis-card">
+        <h2>✨ AI Feedback & Recommendations</h2>
+        <div id="analysis-summary">
+          <p>Loading summary...</p>
+        </div>
+        <hr />
+        <h3>Next Steps:</h3>
+        <div id="analysis-recommendation">
+          <p>Loading recommendations...</p>
+        </div>
+      </div>
+
+      <div class="button-container">
+        <button id="redo-btn">Try Again</button>
+        <button id="main-menu-btn">Back to Main Menu</button>
+      </div>
+    </div>
+    <script src="results.js"></script>
+  </body>
+</html>

@@ -1,0 +1,48 @@
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  background: #121828;
+  color: #e5e7eb;
+}
+
+.container {
+  width: 90%;
+  max-width: 1000px;
+  margin: 40px auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+header h1 {
+  font-size: 2.8rem;
+  color: #c7d2fe;
+}
+
+.back-link {
+  color: #60a5fa;
+  text-decoration: none;
+  font-size: 1.1rem;
+}
+
+.session-card {
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 20px;
+}
+
+.session-card h2 {
+  margin: 0 0 15px 0;
+  color: #a5b4fc;
+}
+
+.session-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  font-size: 1.1rem;
+}
