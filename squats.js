@@ -242,7 +242,7 @@ var currentTracker = squatsTracker; */
 // squats.js - FINAL CORRECTED VERSION
 
 const squatsTracker = {
-  name: "Squats",
+  name: "Squats", userContext: "",
   goal: 0, count: 0, state: "up", history: [],
   feedback: "Start squatting!", lastStateTime: 0, debounce: 500, repsData: [],
  

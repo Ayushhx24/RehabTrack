@@ -121,7 +121,7 @@ calculateAngle: function (A, B, C) {
 var currentTracker = pushupsTracker; */
 
 const pushupsTracker = {
-  name: "Push-ups",
+  name: "Push-ups", userContext: "",
   goal: 0, count: 0, state: "up", history: [],
   feedback: "Get into a plank position!", lastStateTime: 0, debounce: 500, repsData: [],
   

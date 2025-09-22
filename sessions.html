@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RehabTrack - Previous Sessions</title>
+    <link rel="stylesheet" href="sessions-style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Previous Sessions</h1>
+        <a href="index.html" class="back-link">Back to Main Menu</a>
+      </header>
+      <main id="sessions-container">
+        <p>Loading session history...</p>
+      </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyCuVjoUgGvpqGEU7Bcxgcempg6alRK5C7Y",
+        authDomain: "rehab-project-6f576.firebaseapp.com",
+        projectId: "rehab-project-6f576",
+        storageBucket: "rehab-project-6f576.appspot.com",
+        messagingSenderId: "361319381091",
+        appId: "1:361319381091:web:25746ac8f1f37fc575e056",
+      };
+      firebase.initializeApp(firebaseConfig);
+    </script>
+    <script src="sessions.js"></script>
+  </body>
+</html>

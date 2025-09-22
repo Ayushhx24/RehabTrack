@@ -1,7 +1,7 @@
 // arm_curls.js
 
 const armCurlsTracker = {
-  name: "Arm Curls",
+  name: "Arm Curls", userContext: "",
   goal: 0, count: 0, state: "down", history: [], currentAngle: 0,
   feedback: "", lastStateTime: 0, debounce: 500, repsData: [],
   minAngleForRep: 180, maxAngleForRep: 0,
