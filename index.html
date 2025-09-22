@@ -10,7 +10,6 @@
     <nav class="side-nav" id="sideNav">
       <ul>
         <li><a href="sessions.html">Previous Sessions</a></li>
-        <li><a href="developers.html">Developers</a></li>
         <li><a href="support.html">Support</a></li>
       </ul>
       <div class="logout-container">
@@ -49,7 +48,7 @@
           perfect form and effective recovery.
         </p>
       </header>
-      <main style="display: none">
+      <!-- <main style="display: none">
         <h2>Choose Your Exercise</h2>
         <div class="exercise-grid">
           <div class="card" data-exercise="curls">
@@ -64,13 +63,75 @@
             <h3>Push-ups</h3>
             <p>Enhance upper body strength and stability.</p>
           </div>
+          <div class="card" data-exercise="gait">
+          <h3>Gait Analysis</h3>
+          <p>Analyze walking speed and cadence.</p>
+          </div>
+          <div class="card" data-exercise="balance">
+          <h3>Balance Assessment</h3>
+          <p>Test your stability with a clinical protocol.</p>
+          </div>
         </div>
-      </main>
+      </main> -->
+      <main style="display: none">
+  <div class="category-container">
+    <h2>Clinical Assessments</h2>
+    <p class="category-description">Start here to measure your baseline mobility and balance with guided clinical tests.</p>
+    <div class="exercise-grid">
+      
+      <div class="card" data-exercise="gait">
+        <h3>Gait Analysis</h3>
+        <p>Analyze your walking pattern, speed, and stability.</p>
+      </div>
+      
+      <div class="card" data-exercise="balance">
+        <h3>Balance Assessment</h3>
+        <p>Test your static and dynamic stability with a clinical protocol.</p>
+      </div>
+
+    </div>
+  </div>
+    <div class="category-container">
+    <h2>Upper Body Therapeutic Exercise Library</h2>
+    <p class="category-description">Explore exercises designed to enhance upper body strength, stability, and mobility.</p>
+    <div class="exercise-grid">
+      <div class="card" data-exercise="Scapular_Retraction">
+        <h3>Scapular retraction</h3>
+        <p>Improve your shoulder stability and posture</p>
+      </div>
+      <div class="card" data-exercise="curls">
+        <h3>Arm Curls</h3>
+        <p>Strengthen your biceps with guided reps.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="category-container">
+    <h2>General Exercises</h2>
+    <p class="category-description">Perform these guided exercises to improve strength, mobility, and form.</p>
+    <div class="exercise-grid">
+
+      <div class="card" data-exercise="squats">
+        <h3>Squats</h3>
+        <p>Build lower body strength with perfect form.</p>
+      </div>
+      
+      <div class="card" data-exercise="pushups">
+        <h3>Push-ups</h3>
+        <p>Enhance upper body strength and stability.</p>
+      </div>
+    </div>
+  </div>
+</main>
       <div id="exerciseModal" class="modal-container">
         <div class="modal-content">
           <span class="close-button">&times;</span>
           <h2 id="modalTitle"></h2>
           <ul id="modalInstructions"></ul>
+          <ul id="modalInstructions"></ul>
+
+          <label for="userInput" style="margin-top: 15px; font-size: 0.9em;">Area of Focus/Concern (optional):</label>
+          <input type="text" id="userInput" placeholder="e.g., improve depth, sore left knee" style="width: 100%; padding: 8px; margin-top: 5px;">
           <button id="startExerciseBtn">Start Exercise</button>
         </div>
       </div>
@@ -80,7 +141,16 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script>
-      const firebaseConfig = {};
+      const firebaseConfig = {
+          apiKey: "AIzaSyCuVjoUgGvpqGEU7Bcxgcempg6alRK5C7Y",
+          authDomain: "rehab-project-6f576.firebaseapp.com",
+          databaseURL: "https://rehab-project-6f576-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "rehab-project-6f576",
+          storageBucket: "rehab-project-6f576.firebasestorage.app",
+          messagingSenderId: "361319381091",
+          appId: "1:361319381091:web:25746ac8f1f37fc575e056",
+          measurementId: "G-YKS83X5JR6"
+      };
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
       const db = firebase.firestore();

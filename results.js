@@ -49,11 +49,31 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Set up button actions
-  redoBtn.addEventListener("click", () => {
+/*   redoBtn.addEventListener("click", () => {
     if (exerciseName) {
       window.location.href = `${exerciseName
         .toLowerCase()
         .replace(/ /g, "_")}.html`;
+    } else {
+      window.location.href = "index.html";
+    }
+  }); */
+
+  // In results.js
+
+  // Set up button actions
+  redoBtn.addEventListener("click", () => {
+    if (exerciseName) {
+      let url = "index.html"; // Default fallback
+
+      if (exerciseName.toLowerCase().includes("balance")) {
+        url = "balance_assessment.html"; // CORRECTED: Points to the correct filename
+      } else if (exerciseName.toLowerCase().includes("gait")) {
+        url = "clinical_gait_analysis.html";
+      } else {
+        url = `${exerciseName.toLowerCase().replace(/ /g, "_")}.html`;
+      }
+      window.location.href = url;
     } else {
       window.location.href = "index.html";
     }

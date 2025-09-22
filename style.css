@@ -255,3 +255,109 @@ header p {
   height: 28px;
   fill: #9ca3af;
 }
+
+/* In style.css, add this to the end */
+
+.category-container {
+  margin-bottom: 60px; /* Adds space between categories */
+  text-align: center;
+}
+
+.category-container h2 {
+  font-size: 2.2rem;
+  color: #a5b4fc;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #374151;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+.category-description {
+  font-size: 1.1rem;
+  color: #9ca3af;
+  max-width: 600px;
+  margin: 0 auto 30px auto; /* Center the description text */
+}
+
+/* In style.css, add this to the end */
+
+/* Style for the 'i' info icon */
+.info-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  border-radius: 50%;
+  background-color: #4b5563;
+  color: #e5e7eb;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: background-color 0.2s;
+}
+
+.info-icon:hover {
+  background-color: #60a5fa;
+}
+
+/* Styles for the new justification modal */
+.justification-modal-backdrop {
+  position: fixed;
+  z-index: 20; /* Ensure it's on top of the other modal */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(18, 24, 40, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.justification-modal-content {
+  background-color: #1f2937;
+  padding: 25px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 450px;
+  text-align: left;
+  border: 1px solid #4b5563;
+}
+
+.justification-modal-content h3 {
+  margin-top: 0;
+  font-size: 1.5rem;
+  color: #a5b4fc;
+}
+
+.justification-modal-content h4 {
+  font-size: 1.1rem;
+  color: #9ca3af;
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+
+.justification-modal-content p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #e5e7eb;
+}
+
+.justification-modal-content button {
+  background: #4f46e5;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px;
+  margin-top: 20px;
+  transition: background-color 0.2s;
+}
+
+.justification-modal-content button:hover {
+  background-color: #6366f1;
+}
